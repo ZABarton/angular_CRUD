@@ -15,11 +15,11 @@
 <h1>Items for sale</h1>
   <ul>
     <li ng-repeat="item in items">
-    	${{item.price}} |
+    	<p>${{item.price}} |
       <a href="#/{{item._id}}">{{item.name}}</a> |
-      {{item.description}}<br>
-      <span>{{item.sold ? 'Item has been sold' : 'Item is available'}}</span>
-      <button ng-click="remove($index)">remove</button>
+      {{item.description}}</p>
+      <p><span class='status'>{{item.sold ? 'Item is sold out' : 'Item is available'}}</span></p>
+      <button ng-click="remove($index)">Remove From Market</button>
     </li>
   </ul>
   <form>
@@ -40,10 +40,21 @@
   <h1>{{ item.name }}</h1>
   <h2>{{ item.description}}</h2>
   <p>Sale Price: ${{ item.price }}</p>
-  Item sold?: <input type="checkbox" ng-model="item.sold"><br>
+  <form>
+    <h3>Update this item</h3>
+    <ul>
+    <li><label>New Item Name</label>
+    <input type="text" name="name" ng-model="item.name" placeholder="item.name"></li>
+    <li><label>Item Description</label>
+    <input type="text" name="description" ng-model="item.description" placeholder="item.description"></li>    
+    <li><label>Item Price</label>
+    <input type="number" step="0.01" name="price" ng-model="item.price" placeholder="item.price"></li>
+    </ul>
+  </form>
+  Sold Out? <input type="checkbox" ng-model="item.sold"><br>
 
-  <button ng-click="update()">update</button>
-  <button ng-click="remove()">remove</button>
+  <button ng-click="update()">Update Item</button>
+  <button ng-click="remove()">Remove Item From Marketplace</button>
   <a href="/">Cancel</a>
 </script>
 
@@ -74,15 +85,18 @@
 
       $scope.remove = function(index){
       	var item = $scope.items[index];
-      	console.log(item);
-      	Items.remove({id: item._id}, function(){
-      		$scope.items.splice(index, 1);
-      		});	
+        var result = confirm("Are you sure you want to remove this item from the market?")
+        if (result) {
+      	  Items.remove({id: item._id}, function(){
+      		  $scope.items.splice(index, 1);
+      		  });
+          }	
       	}
     }])
 
   .controller('ItemDetailsCtrl', ['$scope', '$routeParams', 'Items', '$location', function ($scope, $routeParams, Items, $location) {
     $scope.item = Items.get({id: $routeParams.id });
+
     $scope.update = function(){
       Items.update({id: $scope.item._id}, $scope.item, function(){
         $location.url('/');
@@ -90,9 +104,12 @@
     }
 
     $scope.remove = function(){
-      Items.remove({id: $scope.item._id}, function(){
-        $location.url('/');
-      });
+      var result = confirm("Are you sure you want to remove this item from the market?")
+      if (result) {
+        Items.remove({id: $scope.item._id}, function(){
+          $location.url('/');
+        });
+      }  
     }
   }])
     .config(['$routeProvider', function ($routeProvider) {
