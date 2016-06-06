@@ -22,6 +22,18 @@
       <button ng-click="remove($index)">remove</button>
     </li>
   </ul>
+  <form>
+    <h2>Add a new item</h2>
+    <ul>
+    <li><label>Item Name</label>
+    <input type="text" name="name" ng-model="newItem.name"></li>
+    <li><label>Item Description</label>
+    <input type="text" name="description" ng-model="newItem.description"></li>    
+    <li><label>Item Price</label>
+    <input type="number" step="0.01" name="price" ng-model="newItem.price"></li>
+    <button ng-click="save()">Add to list</button>
+    </ul>
+  </form>
 </script>
 
 
@@ -37,6 +49,19 @@
     .controller('ItemController', ['$scope', 'Items', function ($scope, Items) {
     	$scope.items = Items.query();
       
+      $scope.save = function(){
+        if(!$scope.newItem || $scope.newItem.length < 1) return;
+        var item = new Items({ name: $scope.newItem.name, 
+                               description: $scope.newItem.description, 
+                               sold: false, 
+                               price: $scope.newItem.price});
+
+        item.$save(function(){
+          $scope.items.push(item);
+          $scope.newItem = "";
+        });
+      }
+
       $scope.remove = function(index){
       	var item = $scope.items[index];
       	console.log(item);
