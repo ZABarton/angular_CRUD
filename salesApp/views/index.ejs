@@ -16,7 +16,7 @@
   <ul>
     <li ng-repeat="item in items">
     	${{item.price}} |
-      <a href="#/{{$index}}">{{item.name}}</a> |
+      <a href="#/{{item._id}}">{{item.name}}</a> |
       {{item.description}}<br>
       <span>{{item.sold ? 'Item has been sold' : 'Item is available'}}</span>
       <button ng-click="remove($index)">remove</button>
@@ -36,6 +36,16 @@
   </form>
 </script>
 
+<script type="text/ng-template" id="/itemDetails.html">
+  <h1>{{ item.name }}</h1>
+  <h2>{{ item.description}}</h2>
+  <p>Sale Price: ${{ item.price }}</p>
+  Item sold?: <input type="checkbox" ng-model="item.sold"><br>
+
+  <button ng-click="update()">update</button>
+  <button ng-click="remove()">remove</button>
+  <a href="/">Cancel</a>
+</script>
 
 <script>
   angular.module('app', ['ngRoute', 'ngResource'])
@@ -71,11 +81,29 @@
       	}
     }])
 
+  .controller('ItemDetailsCtrl', ['$scope', '$routeParams', 'Items', '$location', function ($scope, $routeParams, Items, $location) {
+    $scope.item = Items.get({id: $routeParams.id });
+    $scope.update = function(){
+      Items.update({id: $scope.item._id}, $scope.item, function(){
+        $location.url('/');
+      });
+    }
+
+    $scope.remove = function(){
+      Items.remove({id: $scope.item._id}, function(){
+        $location.url('/');
+      });
+    }
+  }])
     .config(['$routeProvider', function ($routeProvider) {
       $routeProvider
         .when('/', {
           templateUrl: '/items.html',
           controller: 'ItemController'
+        })
+        .when('/:id', {
+          templateUrl: '/itemDetails.html',
+          controller: 'ItemDetailsCtrl'
         })
     }]);
 </script>
