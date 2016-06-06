@@ -1,0 +1,59 @@
+<html ng-app="app">
+<head>
+  <title>Sales Management</title>
+  <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+</head>
+<body>
+
+<ng-view></ng-view>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-resource.min.js"></script>
+
+<script type="text/ng-template" id="/items.html">
+<h1>Items for sale</h1>
+  <ul>
+    <li ng-repeat="item in items">
+    	${{item.price}} |
+      <a href="#/{{$index}}">{{item.name}}</a> |
+      {{item.description}}<br>
+      <span>{{item.sold ? 'Item has been sold' : 'Item is available'}}</span>
+      <button ng-click="remove($index)">remove</button>
+    </li>
+  </ul>
+</script>
+
+
+<script>
+  angular.module('app', ['ngRoute', 'ngResource'])
+
+    .factory('Items', ['$resource', function($resource){
+    	return $resource('/items/:id', null, {
+    		'update': {method: 'PUT'}
+    	});
+    }])
+
+    .controller('ItemController', ['$scope', 'Items', function ($scope, Items) {
+    	$scope.items = Items.query();
+      
+      $scope.remove = function(index){
+      	var item = $scope.items[index];
+      	console.log(item);
+      	Items.remove({id: item._id}, function(){
+      		$scope.items.splice(index, 1);
+      		});	
+      	}
+    }])
+
+    .config(['$routeProvider', function ($routeProvider) {
+      $routeProvider
+        .when('/', {
+          templateUrl: '/items.html',
+          controller: 'ItemController'
+        })
+    }]);
+</script>
+
+</body>
+</html>
