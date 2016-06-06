@@ -31,4 +31,14 @@ form label {
 
 form input {
 	margin: 10px 0;
+	width: 100%
+}
+
+.status {
+	margin: 5px 0;
+	font-style: italic;
+}
+
+button {
+	margin-top: 5px;
 }
